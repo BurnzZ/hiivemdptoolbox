@@ -35,8 +35,8 @@ setup(
     keywords='mdpviz rl',
     packages=[
         'hiive.mdptoolbox',
-        'hiive.examples',
-        'hiive.experimental',
+        # 'hiive.examples',
+        # 'hiive.experimental',
         'hiive.visualization',
         'hiive.visualization.mdpviz',
         'hiive.visualization.mdpviz.dsl',
