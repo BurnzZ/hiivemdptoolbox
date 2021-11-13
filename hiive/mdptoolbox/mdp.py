@@ -568,6 +568,9 @@ class PolicyIteration(MDP):
         details.
     policy0 : array, optional
         Starting policy.
+    epsilon : float, optional
+        Stopping criterion. See the documentation for the ``MDP`` class for
+        details. Default: 0.01.
     max_iter : int, optional
         Maximum number of iterations. See the documentation for the ``MDP``
         class for details. Default is 1000.
@@ -613,7 +616,7 @@ class PolicyIteration(MDP):
     (0, 0, 0)
     """
 
-    def __init__(self, transitions, reward, gamma, policy0=None,
+    def __init__(self, transitions, reward, gamma, policy0=None, epsilon=0.01,
                  max_iter=1000, eval_type=0, skip_check=False,
                  run_stat_frequency=None):
         # Initialise a policy iteration MDP.
@@ -647,6 +650,7 @@ class PolicyIteration(MDP):
         # set the initial values to zero
         self.V = _np.zeros(self.S)
         self.error_mean = []
+        self.epsilon = epsilon
         self.v_mean = []
         self.p_cumulative = []
         self.run_stat_frequency = max(1, max_iter // 10000) if run_stat_frequency is None else run_stat_frequency
@@ -706,7 +710,7 @@ class PolicyIteration(MDP):
         # self.Rpolicy = Rpolicy
         return Ppolicy, Rpolicy
 
-    def _evalPolicyIterative(self, V0=0, epsilon=0.0001, max_iter=10000):
+    def _evalPolicyIterative(self, V0=0, max_iter=10000):
         # Evaluate a policy using iteration.
         #
         # Arguments
@@ -723,7 +727,7 @@ class PolicyIteration(MDP):
         # policy(S) = a policy
         # V0(S)     = starting value function, optional (default : zeros(S,1))
         # epsilon   = epsilon-optimal policy search, upper than 0,
-        #    optional (default : 0.0001)
+        #    optional (default : 0.01)
         # max_iter  = maximum number of iteration to be done, upper than 0,
         #    optional (default : 10000)
         #
@@ -766,7 +770,7 @@ class PolicyIteration(MDP):
                 _printVerbosity(itr, variation)
 
             # ensure |Vn - Vpolicy| < epsilon
-            if variation < ((1 - self.gamma) / self.gamma) * epsilon:
+            if variation < ((1 - self.gamma) / self.gamma) * self.epsilon:
                 done = True
                 if self.verbose:
                     print(_MSG_STOP_EPSILON_OPTIMAL_VALUE)
@@ -1001,7 +1005,7 @@ class PolicyIterationModified(PolicyIteration):
                     self.setSilent()
                     is_verbose = True
 
-                self._evalPolicyIterative(self.V, self.epsilon, self.max_iter)
+                self._evalPolicyIterative(self.V, self.max_iter)
 
                 if is_verbose:
                     self.setVerbose()
