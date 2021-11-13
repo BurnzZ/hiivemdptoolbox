@@ -879,7 +879,10 @@ class PolicyIteration(MDP):
             # of iterations has been reached then stop
 
             # Error, rewards, and time for every iteration and number of PI steps which might be specific to my setup
-            if nd == 0:
+            if self._unchanged_reward(self.run_stats):
+                print("Unchanging Rewards")
+                break
+            elif nd == 0:
                 if self.verbose:
                     print(_MSG_STOP_UNCHANGING_POLICY)
                 break
@@ -899,6 +902,13 @@ class PolicyIteration(MDP):
         if self.run_stats is None or len(self.run_stats) == 0:
             self.run_stats = run_stats
         return self.run_stats
+
+    @staticmethod
+    def _unchanged_reward(run_stats, last=3):
+        if len(run_stats) > last:
+            last = [x["Reward"] for x in run_stats[-last:]]
+            return _np.all(last == last[0])
+        return False
 
 
 class PolicyIterationModified(PolicyIteration):
